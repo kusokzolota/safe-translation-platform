@@ -1,0 +1,132 @@
+body {
+    font-family: 'Yeseva One', sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s; /* Плавный переход фона */
+}
+
+header {
+    background-color: #3a3d5a;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Тень для заголовка */
+}
+
+h1, h2 {
+    margin: 0;
+}
+
+h2 {
+    margin-top: 20px;
+    color: #3a3d5a; /* Изменение цвета заголовков */
+}
+
+main {
+    margin: 20px auto;
+    max-width: 800px;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Более выраженная тень */
+    border-radius: 12px; /* Более округленные углы */
+    transition: transform 0.2s; /* Плавный переход при наведении */
+}
+
+main:hover {
+    transform: translateY(-2px); /* Подъем блока при наведении */
+}
+
+section {
+    margin-bottom: 30px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 5px;
+}
+
+input[type="file"], input[type="text"], input[type="email"], input[type="password"], button {
+    margin-bottom: 15px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 6px; /* Более округленные углы для полей ввода */
+    transition: border-color 0.3s; /* Плавный переход цвета границы */
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+    border-color: #3a3d5a; /* Цвет границы при фокусе */
+    outline: none; /* Убираем обводку */
+}
+
+button {
+    background-color: #3a3d5a;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px; /* Более округленные углы для кнопок */
+    transition: background-color 0.3s, transform 0.2s; /* Плавный переход */
+}
+
+button:hover {
+    background-color: #2d2f47;
+    transform: translateY(-2px); /* Подъем кнопки при наведении */
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #3a3d5a;
+    color: white;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Popup Styles */
+.popup {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6); /* Более темный фон для попапа */
+}
+
+.popup-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 12px; /* Более округленные углы для попапа */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Тень для попапа */
+}
+
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+#authButtons {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the right */
+    margin-top: 10px; /* Add some space above the buttons */
+}
+
+#userAccount {
+    display: flex;
+    justify-content: flex-end; /* Align account buttons to the right */
+    margin-top: 10px; /* Add some space above the account buttons */
+}

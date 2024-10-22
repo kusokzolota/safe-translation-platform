@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход - Safe Translation Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="firebase.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Вход в Safe Translation Platform</h1>
+    </header>
+
+    <main>
+        <section>
+            <h2>Вход</h2>
+            <form id="loginForm">
+                <label for="loginEmail">Электронная почта:</label>
+                <input type="email" id="loginEmail" placeholder="Введите вашу почту" required>
+                <label for="loginPassword">Пароль:</label>
+                <input type="password" id="loginPassword" placeholder="Введите ваш пароль" required>
+                <button type="submit">Войти</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Safe Translation Platform</p>
+    </footer>
+
+    <script type="module">
+        import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+
+        const auth = getAuth();
+
+        document.getElementById('loginForm').onsubmit = async function(e) {
+            e.preventDefault(); // Остановить стандартное поведение формы
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = 'index.html'; // Перенаправление на главную страницу
+            } catch (error) {
+                alert('Ошибка входа: ' + error.message);
+            }
+        };
+    </script>
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            if (!localStorage.getItem('cookieConsent')) {
+                let consent = confirm("Этот сайт использует файлы cookie для улучшения работы и аналитики. Разрешить использование?");
+                if (consent) {
+                    localStorage.setItem('cookieConsent', 'true');
+                }
+            }
+        });
+    </script>
+    
+</body>
+</html>

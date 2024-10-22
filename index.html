@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safe Document Translation Platform</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Yeseva+One&display=swap" rel="stylesheet">
+    <script type="module" src="firebase.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Safe Translation Platform</h1>
+        <p>Secure translations with confidence for both freelancers and clients.</p>
+        <div id="authButtons">
+            <button id="loginBtn">Login</button>
+            <button id="registerBtn">Register</button>
+        </div>
+        <div id="userAccount" style="display: none;">
+            <button id="fileStorageBtn">My Account</button>
+            <button id="logoutBtn">Log Out</button>
+        </div>
+    </header>
+
+    <main>
+        <section id="translatorInterface" style="display: none;">
+            <h2>Submit Translated Document</h2>
+            <form id="submitTranslationForm">
+                <label for="translatedDoc">Upload Translated Document:</label>
+                <input type="file" id="translatedDoc" required>
+                <button type="submit">Submit Translation</button>
+            </form>
+        </section>
+
+        <section id="previewSection" style="display: none;">
+            <h2>Preview Translation</h2>
+            <p>Preview the translation for 10 seconds before payment.</p>
+            <button id="previewBtn">Preview</button>
+            <button id="payBtn">Pay and Download</button>
+        </section>
+
+        <section id="paymentSection" style="display: none;">
+            <h2>Payment</h2>
+            <p>Please complete the payment to download the document.</p>
+            <button id="stripeCheckoutBtn">Pay with Stripe</button>
+        </section>
+    </main>
+
+    <!-- Registration Popup -->
+<div id="registrationPopup" class="popup">
+    <div class="popup-content">
+        <span class="close-btn">&times;</span>
+        <h2>Registration</h2>
+        <form id="registrationForm">
+            <label for="email">Email:</label>
+            <input type="email" id="email" placeholder="Enter your email" required>
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" placeholder="Enter your first name" required>
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" placeholder="Enter your last name" required>
+            <label for="phone">Phone Number:</label>
+            <input type="text" id="phone" placeholder="Enter your phone number" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Create a password" required>
+            <button type="submit">Register</button>
+            <p id="registerError" class="error-message" style="display: none;"></p> <!-- Error message element -->
+        </form>
+    </div>
+</div>
+
+<!-- Login Popup -->
+<div id="loginPopup" class="popup">
+    <div class="popup-content">
+        <span class="close-btn">&times;</span>
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="loginEmail">Email:</label>
+            <input type="email" id="loginEmail" placeholder="Enter your email" required>
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+            <button type="submit">Login</button>
+            <p id="loginError" class="error-message" style="display: none;"></p> <!-- Error message element -->
+        </form>
+    </div>
+</div>
+
+
+    <footer>
+        <p>&copy; 2024 Safe Translation Platform</p>
+    </footer>
+
+    <!-- Main script for handling authentication and UI functionality -->
+    <script type="module">
+        import { auth, db, signInWithEmailAndPassword, createUserWithEmailAndPassword } from './firebase.js';  // Import Firebase auth and db
+    
+        window.addEventListener('DOMContentLoaded', () => {
+            const registerBtn = document.getElementById('registerBtn');
+            const loginBtn = document.getElementById('loginBtn');
+            const registrationPopup = document.getElementById('registrationPopup');
+            const loginPopup = document.getElementById('loginPopup');
+            const registerError = document.getElementById('registerError');
+            const loginError = document.getElementById('loginError');
+            const closeBtn = document.querySelectorAll('.close-btn');
+            const userAccount = document.getElementById('userAccount');
+            const authButtons = document.getElementById('authButtons');
+            const previewSection = document.getElementById('previewSection');
+            const translatorInterface = document.getElementById('translatorInterface');
+    
+            let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';  // Check login status from localStorage
+    
+            function updateAuthButtons() {
+                if (isLoggedIn) {
+                    authButtons.style.display = 'none';  // Hide buttons when logged in
+                    userAccount.style.display = 'flex';  // Show user account buttons
+                    translatorInterface.style.display = 'block';  // Show translator interface
+                    previewSection.style.display = 'block';  // Show preview section
+                } else {
+                    authButtons.style.display = 'flex';  // Show buttons when not logged in
+                    userAccount.style.display = 'none';  // Hide user account buttons
+                    translatorInterface.style.display = 'none';  // Hide translator interface
+                    previewSection.style.display = 'none';  // Hide preview section
+                }
+            }
+    
+            registerBtn.onclick = function() {
+                registrationPopup.style.display = 'block';
+            };
+    
+            loginBtn.onclick = function() {
+                loginPopup.style.display = 'block';
+            };
+    
+            closeBtn.forEach(button => {
+                button.onclick = function() {
+                    registrationPopup.style.display = 'none';
+                    loginPopup.style.display = 'none';
+                };
+            });
+    
+            window.onclick = function(event) {
+                if (event.target == registrationPopup) {
+                    registrationPopup.style.display = 'none';
+                } else if (event.target == loginPopup) {
+                    loginPopup.style.display = 'none';
+                }
+            };
+    
+            // Function to map Firebase error codes to user-friendly messages
+            function getErrorMessage(errorCode) {
+                switch (errorCode) {
+                    case 'auth/invalid-email':
+                        return 'The email address is not valid.';
+                    case 'auth/user-disabled':
+                        return 'This account has been disabled.';
+                    case 'auth/user-not-found':
+                        return 'No user found with this email.';
+                    case 'auth/wrong-password':
+                        return 'The password is incorrect. Please try again.';
+                    case 'auth/email-already-in-use':
+                        return 'This email is already in use by another account.';
+                    case 'auth/weak-password':
+                        return 'The password is too weak. Please choose a stronger password.';
+                    case 'auth/invalid-credential':
+                        return 'Invalid credentials. Please check your details and try again.';
+                    default:
+                        return 'An error occurred. Please try again.';
+                }
+            }
+    
+            // Registration logic
+            document.getElementById('registrationForm').onsubmit = async function(e) {
+                e.preventDefault();  // Prevent default form submission
+    
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const phone = document.getElementById('phone').value;
+    
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+    
+                    // Save additional user data to Firestore
+                    await db.collection("users").doc(user.uid).set({
+                        firstName,
+                        lastName,
+                        phone,
+                        email
+                    });
+    
+                    registrationPopup.style.display = 'none';  // Close popup
+                    registerError.style.display = 'none';  // Hide error if previously shown
+                    alert('Registration successful! Please log in to continue.');
+                } catch (error) {
+                    const errorMessage = getErrorMessage(error.code);  // Get user-friendly error message
+                    registerError.textContent = `Error: ${errorMessage}`;
+                    registerError.style.display = 'block';
+                }
+            };
+    
+            // Login logic
+            document.getElementById('loginForm').onsubmit = async function(e) {
+                e.preventDefault();  // Prevent default form submission
+    
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+    
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    isLoggedIn = true;  // Simulate a successful login
+                    localStorage.setItem('isLoggedIn', 'true');  // Store login status
+                    loginPopup.style.display = 'none';  // Close popup
+                    loginError.style.display = 'none';  // Hide error if previously shown
+                    updateAuthButtons();  // Update buttons visibility
+                } catch (error) {
+                    const errorMessage = getErrorMessage(error.code);  // Get user-friendly error message
+                    loginError.textContent = `Login Error: ${errorMessage}`;
+                    loginError.style.display = 'block';
+                }
+            };
+    
+            // Logout logic
+            document.getElementById('logoutBtn').onclick = function() {
+                isLoggedIn = false;  // Log out the user
+                localStorage.setItem('isLoggedIn', 'false');  // Update login status
+                updateAuthButtons();  // Update buttons visibility
+            };
+    
+            // Initialize the button visibility on page load
+            updateAuthButtons();
+        });
+    </script>
+    
+
+    <!-- Cookie consent -->
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            if (!localStorage.getItem('cookieConsent')) {
+                let consent = confirm("This site uses cookies to improve your experience. Allow cookies?");
+                if (consent) {
+                    localStorage.setItem('cookieConsent', 'true');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
